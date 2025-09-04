@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.aurionpro.dao.IUserDao;
 import com.aurionpro.dao.UserDaoImpl;
+import com.aurionpro.model.AdminViewUserDto;
 import com.aurionpro.model.User;
 import com.aurionpro.utils.FormatChecker;
 
@@ -70,7 +71,7 @@ public class UserService {
         return "Password updated successfully!";
     }
     
-    public List<User> getAllNonAdminUsers() {
+    public List<AdminViewUserDto> getAllNonAdminUsers() {
         return userDao.getAllNonAdminUsers();
     }
 

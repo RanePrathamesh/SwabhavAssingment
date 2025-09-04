@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.aurionpro.model.AdminViewUserDto;
 import com.aurionpro.model.User;
 import com.aurionpro.service.UserService;
 
@@ -35,7 +36,7 @@ public class ManageUsersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<User> users = userService.getAllNonAdminUsers();
+        List<AdminViewUserDto> users = userService.getAllNonAdminUsers();
         request.setAttribute("users", users);
         request.getRequestDispatcher("manage-users.jsp").forward(request, response);
     }
@@ -44,12 +45,12 @@ public class ManageUsersServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         
-        String action = request.getParameter("action"); // "activate" or "deactivate"
+        String action = request.getParameter("action"); 
         String reason = request.getParameter("reason");
         String userIdStr = request.getParameter("userId");
 
         if (action != null && userIdStr != null && !userIdStr.trim().isEmpty()) {
-            int userId = Integer.parseInt(userIdStr);  // ✅ Correctly get selected user's ID
+            int userId = Integer.parseInt(userIdStr);  
 
             boolean isActive = action.equalsIgnoreCase("activate");
 
@@ -65,7 +66,7 @@ public class ManageUsersServlet extends HttpServlet {
             request.setAttribute("msg", " Invalid request. User ID or action missing.");
         }
 
-        doGet(request, response); // Refresh the user list
+        doGet(request, response); 
     }
 
 }

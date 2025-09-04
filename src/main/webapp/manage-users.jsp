@@ -52,6 +52,7 @@
                 <th class="text-center">Status</th>
                 <th>Reason (if deactivated)</th>
                 <th class="text-center">Action</th>
+                <th class="text-center">View</th>
             </tr>
             </thead>
             <tbody>
@@ -61,7 +62,7 @@
                     <td>${user.email}</td>
                     <td class="text-center">
                         <c:choose>
-                            <c:when test="${user.active}">
+                            <c:when test="${user.isActive()}">
                                 <span class="badge bg-success">Active</span>
                             </c:when>
                             <c:otherwise>
@@ -72,7 +73,7 @@
                     <td><c:out value="${user.deactivationReason != null ? user.deactivationReason : '-'}" /></td>
                     <td class="text-center">
                         <c:choose>
-                            <c:when test="${user.active}">
+                            <c:when test="${user.isActive()}">
                                 <!-- Deactivate Button triggers modal -->
                                 <button 
                                     type="button"
@@ -93,6 +94,31 @@
                                 </form>
                             </c:otherwise>
                         </c:choose>
+                    </td>
+                    <!-- View Button -->
+                    <td class="text-center">
+                       <button 
+    type="button"
+    class="btn btn-info btn-sm"
+    data-bs-toggle="modal"
+    data-bs-target="#viewUserModal"
+    data-userid="${user.userId}"
+    data-firstname="${user.firstName}"
+    data-lastname="${user.lastName}"
+    data-email="${user.email}"
+    data-mobile="${user.mobileNumber}"
+    data-age="${user.age}"
+    data-gender="${user.gender}"
+    data-address="${user.address}"
+    data-createdat="${user.createdAt}"
+    data-accountnumber="${user.accountNumber}"
+    data-aadharnumber = "${user.aadharNumber }"
+    >
+    View
+</button>
+
+
+
                     </td>
                 </tr>
             </c:forEach>
@@ -131,21 +157,65 @@
     </div>
 </div>
 
+<!-- View User Modal -->
+<div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewUserModalLabel">User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>First Name:</strong> <span id="viewFirstName"></span></p>
+                <p><strong>Last Name:</strong> <span id="viewLastName"></span></p>
+                <p><strong>Email:</strong> <span id="viewEmail"></span></p>
+                <p><strong>Mobile:</strong> <span id="viewMobile"></span></p>
+                <p><strong>Age:</strong> <span id="viewAge"></span></p>
+                <p><strong>Gender:</strong> <span id="viewGender"></span></p>
+                <p><strong>Address:</strong> <span id="viewAddress"></span></p>
+                <p><strong>Created On:</strong> <span id="createdAt"></span></p>
+                <p><strong>Account Number:</strong> <span id="accountNumber"></span></p>
+                 <p><strong>Aadhar Number:</strong> <span id="aadharNumber"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    
-    var reasonModal = document.getElementById('reasonModal');
-    reasonModal.addEventListener('show.bs.modal', function (event) {
+    // Populating the view user modal with data dynamically
+    var viewUserModal = document.getElementById('viewUserModal');
+    viewUserModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
         var userId = button.getAttribute('data-userid');
-        var username = button.getAttribute('data-username');
+        var firstName = button.getAttribute('data-firstname');
+        var lastName = button.getAttribute('data-lastname');
+        var email = button.getAttribute('data-email');
+        var mobile = button.getAttribute('data-mobile');
+        var age = button.getAttribute('data-age');
+        var gender = button.getAttribute('data-gender');
+        var address = button.getAttribute('data-address');
+        var createdAt = button.getAttribute('data-createdAt');
+        var accountNumber = button.getAttribute('data-accountNumber');
+        
+        var aadharNumber = button.getAttribute('data-aadharnumber');
+       
 
-        var modalTitle = reasonModal.querySelector('.modal-title');
-        var modalUserIdInput = reasonModal.querySelector('#modalUserId');
-        var textarea = reasonModal.querySelector('#reason');
+        
+      
+        document.getElementById('viewFirstName').textContent = firstName;
+        document.getElementById('viewLastName').textContent = lastName;
+        document.getElementById('viewEmail').textContent = email;
+        document.getElementById('viewMobile').textContent = mobile;
+        document.getElementById('viewAge').textContent = age;
+        document.getElementById('viewGender').textContent = gender;
+        document.getElementById('viewAddress').textContent = address;
+        document.getElementById('createdAt').textContent = createdAt;
+        document.getElementById('accountNumber').textContent = accountNumber;
 
-        modalTitle.textContent = 'Deactivate User: ' + username;
-        modalUserIdInput.value = userId;
-        textarea.value = ''; 
+        document.getElementById('aadharNumber').textContent = aadharNumber;
     });
 </script>
 

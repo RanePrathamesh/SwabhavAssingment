@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.aurionpro.model.AdminViewUserDto;
 import com.aurionpro.model.User;
 import com.aurionpro.utils.DatabaseSource;
 
@@ -212,16 +213,16 @@ public class UserDaoImpl implements IUserDao {
 	    }
 	}
 	// Fetch all users except admins
-	public List<User> getAllNonAdminUsers() {
-	    List<User> users = new ArrayList<>();
-	    String sql = "SELECT * FROM users WHERE role != 'ADMIN'";
+	public List<AdminViewUserDto> getAllNonAdminUsers() {
+	    List<AdminViewUserDto> users = new ArrayList<>();
+	    String sql = "SELECT u.*,a.* FROM users u join accounts a on u.user_id=a.user_id WHERE role != 'ADMIN'";
 
 	    try (PreparedStatement ps = connection.prepareStatement(sql);
 	         ResultSet rs = ps.executeQuery()) {
 
 	        while (rs.next()) {
-	            User user = new User(
-	            		
+	        	AdminViewUserDto user = new AdminViewUserDto(
+	            		rs.getInt("user_id"),
 	                rs.getString("first_name"),
 	                rs.getString("last_name"),
 	                rs.getString("email"),
@@ -229,16 +230,22 @@ public class UserDaoImpl implements IUserDao {
 	                rs.getInt("age"),
 	                rs.getString("gender"),
 	                rs.getString("address"),
-	                rs.getString("deactivation_reason")
-	                
+	                rs.getTimestamp("created_at"),
+	                rs.getInt("account_id"),
+	                rs.getString("account_number"),
+	                rs.getBoolean("is_approved"),
+	                rs.getString("deactivation_reason"),
+	                rs.getBoolean("is_active"),
+	                rs.getString("aadhar_number")
+	             
 	            );
-	            user.setUserId(rs.getInt("user_id"));
-	            user.setActive(rs.getBoolean("is_active"));
-	            user.setRole(rs.getString("role"));
-	            users.add(user);
+	        	
+	        	users.add(user);
+	            
 	        }
 
 	    } catch (SQLException e) {
+	    	System.out.println(e.getMessage());
 	        e.printStackTrace();
 	    }
 
@@ -264,7 +271,7 @@ public class UserDaoImpl implements IUserDao {
 	    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 	    	preparedStatement.setBoolean(1, isActive);
 	        if (isActive) {
-	        	preparedStatement.setNull(2, java.sql.Types.VARCHAR); // Clear reason if reactivating
+	        	preparedStatement.setNull(2, java.sql.Types.VARCHAR);
 	        } else {
 	        	preparedStatement.setString(2, reason);
 	        }

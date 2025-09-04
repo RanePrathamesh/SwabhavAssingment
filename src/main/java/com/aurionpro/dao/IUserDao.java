@@ -2,6 +2,7 @@ package com.aurionpro.dao;
 
 import java.util.List;
 
+import com.aurionpro.model.AdminViewUserDto;
 import com.aurionpro.model.User;
 
 public interface IUserDao {
@@ -12,6 +13,6 @@ public interface IUserDao {
     public boolean updateUser(User user);
     public boolean checkPassword(int userId, String currentPassword);
     public void updatePassword(int userId, String newPassword);
-    public List<User> getAllNonAdminUsers();
+    public List<AdminViewUserDto> getAllNonAdminUsers();
     public boolean updateUserActivationStatus(int userId, boolean isActive, String reason);
 }
