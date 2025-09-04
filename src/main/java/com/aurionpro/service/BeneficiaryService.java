@@ -36,7 +36,7 @@ public class BeneficiaryService {
         return beneficiaryDao.addBeneficiary(beneficiary);
     }
 
-    // Update an existing beneficiary
+
     public boolean updateBeneficiary(Beneficiary beneficiary) {
         if (!validateBeneficiary(beneficiary)) {
             System.out.println("Validation failed for beneficiary update.");
@@ -46,22 +46,22 @@ public class BeneficiaryService {
         return beneficiaryDao.updateBeneficiary(beneficiary);
     }
 
-    // Delete a beneficiary by ID and user ID
+    
     public boolean deleteBeneficiary(int beneficiaryId, int userId) {
         return beneficiaryDao.deleteBeneficiary(beneficiaryId, userId);
     }
 
-    // Get all beneficiaries for a user
+  
     public List<Beneficiary> getBeneficiariesByUserId(int userId) {
         return beneficiaryDao.getBeneficiariesByUserId(userId);
     }
 
-    // Get a single beneficiary by ID and user ID
+    
     public Beneficiary getBeneficiaryById(int beneficiaryId, int userId) {
         return beneficiaryDao.getBeneficiaryById(beneficiaryId, userId);
     }
 
-    // Validate each field and log the reason if any check fails
+   
     private boolean validateBeneficiary(Beneficiary beneficiary) {
         if (beneficiary == null) {
             System.out.println("Beneficiary object is null.");

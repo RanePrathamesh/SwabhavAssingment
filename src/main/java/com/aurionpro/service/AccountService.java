@@ -14,39 +14,27 @@ public class AccountService {
         this.accountDao = new AccountDaoImpl();
     }
 
-    /**
-     * Fetch all accounts which are not yet approved (pending).
-     */
+  
     public List<PendingAccountDto> getAllPendingAccounts() {
         return accountDao.getPendingAccounts();
     }
 
-    /**
-     * Approve account and assign unique account number.
-     * Returns true if approval success, false otherwise.
-     */
+   
     public boolean approveAccount(int accountId) {
         return accountDao.approveAccountAndAssignNumber(accountId);
     }
 
-    /**
-     * Reject the account and save rejection reason.
-     * Returns true if rejection success, false otherwise.
-     */
+   
     public boolean rejectAccount(int accountId, String rejectionReason) {
         return accountDao.rejectAccount(accountId, rejectionReason);
     }
 
-    /**
-     * Fetch a single account by ID.
-     */
+   
     public Account getAccountByUserId(int userId) {
         return accountDao.getAccountByUserId(userId);
     }
 
-    /**
-     * Fetch only the balance for a given userId.
-     */
+   
     public double getBalanceByUserId(int userId) {
         return accountDao.getBalanceByUserId(userId);
     }

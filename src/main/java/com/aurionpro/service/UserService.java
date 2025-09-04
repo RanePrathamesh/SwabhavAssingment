@@ -52,21 +52,21 @@ public class UserService {
         return userDao.checkPassword(userId, currentPassword);
     }
 
-    //  Change Password with FormatChecker validation
+   
     public String changePassword(int userId, String currentPassword, String newPassword) {
 
-        // Step 1: Verify current password
+       
         if (!validateCurrentPassword(userId, currentPassword)) {
             return "Current password is incorrect!";
         }
 
-        // Step 2: Validate new password strength
+       
         if (!FormatChecker.isValidPassword(newPassword)) {
             return "New password must contain at least 8 characters, "
                  + "including uppercase, lowercase, digit, and special character.";
         }
 
-        // Step 3: Update password in DB
+        
         userDao.updatePassword(userId, newPassword);
         return "Password updated successfully!";
     }

@@ -22,11 +22,11 @@ public class AccountDaoImpl implements IAccountDao {
 	@Override
 	public List<PendingAccountDto> getPendingAccounts() {
 		String sql = """
-					    SELECT a.account_id, a.user_id, u.first_name, u.last_name, u.email, a.created_at, u.aadhar_file_path,u.aadhar_number,a.is_approved
-					    FROM accounts a
-					    JOIN users u ON u.user_id = a.user_id
-					    WHERE a.is_approved = FALSE and u.rejection_reason is null
-					    ORDER BY a.created_at ASC
+					    select a.account_id, a.user_id, u.first_name, u.last_name, u.email, a.created_at, u.aadhar_file_path,u.aadhar_number,a.is_approved
+					    from accounts a
+					    join users u on u.user_id = a.user_id
+					    where a.is_approved = false and u.rejection_reason is null
+					    order by a.created_at asc
 				""";
 
 		List<PendingAccountDto> list = new ArrayList<>();
@@ -60,10 +60,10 @@ public class AccountDaoImpl implements IAccountDao {
 
 	      
 	        String updateSql = """
-	                UPDATE accounts a
-	                JOIN users u ON a.user_id = u.user_id
-	                SET a.is_approved = TRUE, u.rejection_reason = NULL, a.account_number = ?
-	                WHERE a.account_id = ? AND a.is_approved = FALSE
+	                update accounts a
+	                join users u on a.user_id = u.user_id
+	                set a.is_approved = true, u.rejection_reason = null, a.account_number = ?
+	                where a.account_id = ? and a.is_approved = false
 	        """;
 
 	        try (PreparedStatement ps = connection.prepareStatement(updateSql)) {
@@ -101,7 +101,7 @@ public class AccountDaoImpl implements IAccountDao {
 
 	@Override
 	public Account getAccountByUserId(int userId) {
-		String sql = "SELECT * FROM accounts WHERE user_id = ?";
+		String sql = "select * from accounts where user_id = ?";
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setInt(1, userId);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -123,7 +123,7 @@ public class AccountDaoImpl implements IAccountDao {
 	}
 
 	public double getBalanceByUserId(int userId) {
-		String sql = "SELECT balance FROM accounts WHERE user_id = ?";
+		String sql = "select balance from accounts where user_id = ?";
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setInt(1, userId);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -139,7 +139,7 @@ public class AccountDaoImpl implements IAccountDao {
 
 	@Override
 	public boolean isAccountNumberExists(String accountNumber) {
-		String sql = "SELECT 1 FROM accounts WHERE account_number = ? LIMIT 1";
+		String sql = "select 1 from accounts where account_number = ? limit 1";
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setString(1, accountNumber);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -175,7 +175,7 @@ public class AccountDaoImpl implements IAccountDao {
 	}
 
 	public double getTotalBankBalance() {
-		String sql = "SELECT SUM(balance) AS total_balance FROM accounts WHERE is_approved = TRUE";
+		String sql = "select sum(balance) as total_balance from accounts where is_approved = true";
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -192,11 +192,11 @@ public class AccountDaoImpl implements IAccountDao {
 		// Reject the account by updating the status to 'rejected' and store the reason
 		boolean success = false;
 		String sql = """
-					           UPDATE accounts a
-				JOIN users u ON a.user_id = u.user_id
-				SET a.is_approved = FALSE,
+					           update accounts a
+				join users u on a.user_id = u.user_id
+				set a.is_approved = false,
 				    u.rejection_reason = ?
-				WHERE a.account_id = ?;
+				where a.account_id = ?;
 					        """;
 
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -213,11 +213,11 @@ public class AccountDaoImpl implements IAccountDao {
 
 	public List<PendingAccountDto> getRejectedAccounts() {
 		String sql = """
-				SELECT a.account_id, a.user_id, u.first_name, u.last_name, u.email, a.created_at, u.aadhar_file_path, u.aadhar_number, a.is_approved, u.rejection_reason
-				FROM accounts a
-				JOIN users u ON u.user_id = a.user_id
-				WHERE a.is_approved = FALSE AND u.rejection_reason IS NOT NULL
-				ORDER BY a.created_at DESC
+				select a.account_id, a.user_id, u.first_name, u.last_name, u.email, a.created_at, u.aadhar_file_path, u.aadhar_number, a.is_approved, u.rejection_reason
+				from accounts a
+				join users u on u.user_id = a.user_id
+				where a.is_approved = false and u.rejection_reason is not null
+				order by a.created_at desc
 				""";
 
 		List<PendingAccountDto> list = new ArrayList<>();
@@ -235,7 +235,7 @@ public class AccountDaoImpl implements IAccountDao {
 	}
 
 	public String getRejectionReason(int accountId) {
-		String sql = "SELECT u.rejection_reason FROM accounts a JOIN users u ON a.user_id = u.user_id WHERE a.account_id = ?";
+		String sql = "select u.rejection_reason from accounts a join users u on a.user_id = u.user_id where a.account_id = ?";
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setInt(1, accountId);
 			try (ResultSet rs = ps.executeQuery()) {

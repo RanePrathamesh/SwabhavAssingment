@@ -18,7 +18,7 @@ public class BeneficiaryDaoImpl implements IBeneficiaryDao {
 
     @Override
     public boolean addBeneficiary(Beneficiary beneficiary) {
-        String sql = "INSERT INTO beneficiaries (user_id, beneficiary_name, account_number, bank_name, ifsc_code, nickname) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "insert into beneficiaries (user_id, beneficiary_name, account_number, bank_name, ifsc_code, nickname) values (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, beneficiary.getUserId());
             ps.setString(2, beneficiary.getBeneficiaryName());
@@ -37,7 +37,7 @@ public class BeneficiaryDaoImpl implements IBeneficiaryDao {
     @Override
     public List<Beneficiary> getBeneficiariesByUserId(int userId) {
         List<Beneficiary> list = new ArrayList<>();
-        String sql = "SELECT * FROM beneficiaries WHERE user_id = ?";
+        String sql = "select * from beneficiaries where user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -62,7 +62,7 @@ public class BeneficiaryDaoImpl implements IBeneficiaryDao {
 
     @Override
     public boolean deleteBeneficiary(int beneficiaryId, int userId) {
-        String sql = "DELETE FROM beneficiaries WHERE beneficiary_id = ? AND user_id = ?";
+        String sql = "delete from beneficiaries where beneficiary_id = ? and user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, beneficiaryId);
             ps.setInt(2, userId);
@@ -75,7 +75,7 @@ public class BeneficiaryDaoImpl implements IBeneficiaryDao {
 
     @Override
     public boolean updateBeneficiary(Beneficiary beneficiary) {
-        String sql = "UPDATE beneficiaries SET beneficiary_name=?, account_number=?, bank_name=?, ifsc_code=?, nickname=? WHERE beneficiary_id=? AND user_id=?";
+        String sql = "update beneficiaries set beneficiary_name=?, account_number=?, bank_name=?, ifsc_code=?, nickname=? where beneficiary_id=? and user_id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, beneficiary.getBeneficiaryName());
             ps.setString(2, beneficiary.getAccountNumber());
@@ -94,7 +94,7 @@ public class BeneficiaryDaoImpl implements IBeneficiaryDao {
 
     @Override
     public Beneficiary getBeneficiaryById(int beneficiaryId, int userId) {
-        String sql = "SELECT * FROM beneficiaries WHERE beneficiary_id=? AND user_id=?";
+        String sql = "select * from beneficiaries where beneficiary_id=? and user_id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, beneficiaryId);
             ps.setInt(2, userId);
@@ -118,7 +118,7 @@ public class BeneficiaryDaoImpl implements IBeneficiaryDao {
     }
 
     public Beneficiary findByAccountNumberAndUserId(String accountNumber, int userId, String ifscCode) {
-        String sql = "SELECT * FROM beneficiaries WHERE account_number = ? AND user_id = ? AND ifsc_code = ?";
+        String sql = "select * from beneficiaries where account_number = ? and user_id = ? and ifsc_code = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, accountNumber);
             ps.setInt(2, userId);

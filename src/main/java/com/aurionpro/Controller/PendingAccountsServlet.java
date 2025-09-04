@@ -104,6 +104,6 @@ public class PendingAccountsServlet extends HttpServlet {
         }
 
         // Refresh pending accounts list
-        doGet(request, response);  // Redirect to the doGet to refresh the list
+        doGet(request, response);  
     }
 }

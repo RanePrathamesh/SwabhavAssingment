@@ -91,7 +91,7 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // === Aadhar Validation (Simple) ===
+        
         if (aadharNumber == null || !aadharNumber.matches("\\d{12}")) {
             request.setAttribute("message", "Invalid Aadhar number. Must be exactly 12 digits.");
             request.getRequestDispatcher("Register.jsp").forward(request, response);
@@ -99,7 +99,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         try {
-            // === File Upload ===
+            //save the things in file and db
             Part filePart = request.getPart("aadharFile");
             String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
             String lowerFileName = fileName.toLowerCase();

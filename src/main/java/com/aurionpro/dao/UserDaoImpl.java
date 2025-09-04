@@ -22,10 +22,10 @@ public class UserDaoImpl implements IUserDao {
 
     @Override
     public boolean registerUser(User user) {
-        String userInsert = "INSERT INTO users (first_name, last_name, email, mobile_number, age, gender, address, is_active, is_first_login, role, aadhar_number, aadhar_file_path) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        String authInsert = "INSERT INTO auth (username, password, user_id) VALUES (?, ?, ?)";
-        String accountInsert = "INSERT INTO accounts (user_id, account_number, balance, is_approved) VALUES (?, ?, ?, ?)";
+        String userInsert = "insert into users (first_name, last_name, email, mobile_number, age, gender, address, is_active, is_first_login, role, aadhar_number, aadhar_file_path) "
+                + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String authInsert = "insert into auth (username, password, user_id) values (?, ?, ?)";
+        String accountInsert = "insert into accounts (user_id, account_number, balance, is_approved) values (?, ?, ?, ?)";
 
         try {
             // User insert statement
@@ -50,14 +50,14 @@ public class UserDaoImpl implements IUserDao {
                 if (rs.next()) {
                     int userId = rs.getInt(1);
 
-                   
+                    // Insert authentication details
                     PreparedStatement authenticationStmt = connection.prepareStatement(authInsert);
                     authenticationStmt.setString(1, user.getFirstName().toLowerCase());
                     authenticationStmt.setString(2, user.getFirstName().toLowerCase() + "@123"); 
                     authenticationStmt.setInt(3, userId);
                     authenticationStmt.executeUpdate();
 
-                    
+                    // Insert account details
                     PreparedStatement accStmt = connection.prepareStatement(accountInsert);
                     accStmt.setInt(1, userId);
                     String tempAccountNumber = "PENDING" + UUID.randomUUID().toString();
@@ -71,16 +71,15 @@ public class UserDaoImpl implements IUserDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Error occurred while registering user: " + e.getMessage());
+            System.out.println("error occurred while registering user: " + e.getMessage());
         }
 
         return false;
     }
 
-
     @Override
     public boolean isEmailOrMobileExists(String email, String mobileNumber) {
-        String query = "SELECT user_id FROM users WHERE email = ? OR mobile_number = ?";
+        String query = "select user_id from users where email = ? or mobile_number = ?";
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, email);
@@ -121,169 +120,150 @@ public class UserDaoImpl implements IUserDao {
                 return user;
             }
 
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-	@Override
-	public User checkLoginCredintials(String username ,String password) {
-		User user = null;
+    @Override
+    public User checkLoginCredintials(String username ,String password) {
+        User user = null;
 
-		String sql = "select u.* from users u join auth a on a.user_id = u.user_id where a.username= ? and password =?";
+        String sql = "select u.* from users u join auth a on a.user_id = u.user_id where a.username= ? and password =?";
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-			preparedStatement.setString(1, username);
-			preparedStatement.setString(2, password);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
 
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				if (resultSet.next()) {
-					 user = new User(
-							 resultSet.getString("first_name"),
-							 resultSet.getString("last_name"),
-							 resultSet.getString("email"),
-							 resultSet.getString("mobile_number"),
-							 resultSet.getInt("age"),
-							 resultSet.getString("gender"),
-							 resultSet.getString("address")
-		                );
-		                user.setUserId(resultSet.getInt("user_id"));
-		                user.setActive(resultSet.getBoolean("is_active"));
-		                user.setFirstLogin(resultSet.getBoolean("is_first_login"));
-		                user.setRole(resultSet.getString("role"));
-		                user.setCreatedAt(resultSet.getTimestamp("created_at"));
-		                user.setDeactivationReason(resultSet.getString("deactivation_reason"));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    user = new User(
+                            resultSet.getString("first_name"),
+                            resultSet.getString("last_name"),
+                            resultSet.getString("email"),
+                            resultSet.getString("mobile_number"),
+                            resultSet.getInt("age"),
+                            resultSet.getString("gender"),
+                            resultSet.getString("address")
+                    );
+                    user.setUserId(resultSet.getInt("user_id"));
+                    user.setActive(resultSet.getBoolean("is_active"));
+                    user.setFirstLogin(resultSet.getBoolean("is_first_login"));
+                    user.setRole(resultSet.getString("role"));
+                    user.setCreatedAt(resultSet.getTimestamp("created_at"));
+                    user.setDeactivationReason(resultSet.getString("deactivation_reason"));
+                }
+            }
 
-				}
-			}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        return user;
+    }
 
-		return user;
-	}
-	@Override
-	public boolean updateUser(User user) {
-	    String sql = "UPDATE users SET first_name = ?, last_name = ?, email = ?, mobile_number = ?, age = ?, gender = ?, address = ? WHERE user_id = ?";
-	    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-	        stmt.setString(1, user.getFirstName());
-	        stmt.setString(2, user.getLastName());
-	        stmt.setString(3, user.getEmail());
-	        stmt.setString(4, user.getMobileNumber());
-	        stmt.setInt(5, user.getAge());
-	        stmt.setString(6, user.getGender());
-	        stmt.setString(7, user.getAddress());
-	        stmt.setInt(8, user.getUserId());
+    @Override
+    public boolean updateUser(User user) {
+        String sql = "update users set first_name = ?, last_name = ?, email = ?, mobile_number = ?, age = ?, gender = ?, address = ? where user_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getFirstName());
+            stmt.setString(2, user.getLastName());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getMobileNumber());
+            stmt.setInt(5, user.getAge());
+            stmt.setString(6, user.getGender());
+            stmt.setString(7, user.getAddress());
+            stmt.setInt(8, user.getUserId());
 
-	        return stmt.executeUpdate() > 0;
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return false;
-	}
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
-	public boolean checkPassword(int userId, String currentPassword) {
-	    String sql = "SELECT password FROM auth WHERE user_id = ?";
-	    try (
-	         PreparedStatement ps = connection.prepareStatement(sql)) {
-	        ps.setInt(1, userId);
-	        ResultSet rs = ps.executeQuery();
-	        if (rs.next()) {
-	            return rs.getString("password").equals(currentPassword); 
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return false;
-	}
+    public boolean checkPassword(int userId, String currentPassword) {
+        String sql = "select password from auth where user_id = ?";
+        try (
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("password").equals(currentPassword); 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
-	public void updatePassword(int userId, String newPassword) {
-	    String sql = "UPDATE auth SET password = ? WHERE user_id = ?";
-	    try (
-	         PreparedStatement ps = connection.prepareStatement(sql)) {
-	        ps.setString(1, newPassword);
-	        ps.setInt(2, userId);
-	        ps.executeUpdate();
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	}
-	// Fetch all users except admins
-	public List<AdminViewUserDto> getAllNonAdminUsers() {
-	    List<AdminViewUserDto> users = new ArrayList<>();
-	    String sql = "SELECT u.*,a.* FROM users u join accounts a on u.user_id=a.user_id WHERE role != 'ADMIN'";
+    public void updatePassword(int userId, String newPassword) {
+        String sql = "update auth set password = ? where user_id = ?";
+        try (
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	    try (PreparedStatement ps = connection.prepareStatement(sql);
-	         ResultSet rs = ps.executeQuery()) {
+    // Fetch all users except admins
+    public List<AdminViewUserDto> getAllNonAdminUsers() {
+        List<AdminViewUserDto> users = new ArrayList<>();
+        String sql = "select u.*, a.* from users u join accounts a on u.user_id = a.user_id where role != 'admin'";
 
-	        while (rs.next()) {
-	        	AdminViewUserDto user = new AdminViewUserDto(
-	            		rs.getInt("user_id"),
-	                rs.getString("first_name"),
-	                rs.getString("last_name"),
-	                rs.getString("email"),
-	                rs.getString("mobile_number"),
-	                rs.getInt("age"),
-	                rs.getString("gender"),
-	                rs.getString("address"),
-	                rs.getTimestamp("created_at"),
-	                rs.getInt("account_id"),
-	                rs.getString("account_number"),
-	                rs.getBoolean("is_approved"),
-	                rs.getString("deactivation_reason"),
-	                rs.getBoolean("is_active"),
-	                rs.getString("aadhar_number")
-	             
-	            );
-	        	
-	        	users.add(user);
-	            
-	        }
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-	    } catch (SQLException e) {
-	    	System.out.println(e.getMessage());
-	        e.printStackTrace();
-	    }
+            while (rs.next()) {
+                AdminViewUserDto user = new AdminViewUserDto(
+                        rs.getInt("user_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getString("mobile_number"),
+                        rs.getInt("age"),
+                        rs.getString("gender"),
+                        rs.getString("address"),
+                        rs.getTimestamp("created_at"),
+                        rs.getInt("account_id"),
+                        rs.getString("account_number"),
+                        rs.getBoolean("is_approved"),
+                        rs.getString("deactivation_reason"),
+                        rs.getBoolean("is_active"),
+                        rs.getString("aadhar_number")
+                );
 
-	    return users;
-	}
+                users.add(user);
+            }
 
-//	// Update user active status
-//	public boolean updateUserActiveStatus(int userId, boolean isActive) {
-//	    String sql = "UPDATE users SET is_active = ? WHERE user_id = ?";
-//	    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-//	        ps.setBoolean(1, isActive);
-//	        ps.setInt(2, userId);
-//	        return ps.executeUpdate() > 0;
-//	    } catch (SQLException e) {
-//	        e.printStackTrace();
-//	    }
-//	    return false;
-//	}
-	
-	
-	public boolean updateUserActivationStatus(int userId, boolean isActive, String reason) {
-	    String sql = "UPDATE users SET is_active = ?, deactivation_reason = ? WHERE user_id = ?";
-	    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-	    	preparedStatement.setBoolean(1, isActive);
-	        if (isActive) {
-	        	preparedStatement.setNull(2, java.sql.Types.VARCHAR);
-	        } else {
-	        	preparedStatement.setString(2, reason);
-	        }
-	        preparedStatement.setInt(3, userId);
-	        return preparedStatement.executeUpdate() > 0;
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        return false;
-	    }
-	}
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
 
+        return users;
+    }
 
-
-
+    public boolean updateUserActivationStatus(int userId, boolean isActive, String reason) {
+        String sql = "update users set is_active = ?, deactivation_reason = ? where user_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setBoolean(1, isActive);
+            if (isActive) {
+                preparedStatement.setNull(2, java.sql.Types.VARCHAR); // Set deactivation reason as null if active
+            } else {
+                preparedStatement.setString(2, reason); // Set deactivation reason if inactive
+            }
+            preparedStatement.setInt(3, userId);
+            return preparedStatement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
+

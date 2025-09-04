@@ -15,16 +15,17 @@ public class TransactionDaoImpl implements ITransactionDao {
 	public TransactionDaoImpl() {
 		conn = DatabaseSource.getinstance().getConnection();
 	}
+
     @Override
     public boolean transferMoney(int fromAccountId, int toAccountId, double amount, String description) {
-        String debitQuery = "UPDATE accounts SET balance = balance - ? WHERE account_id = ? AND balance >= ?";
-        String creditQuery = "UPDATE accounts SET balance = balance + ? WHERE account_id = ?";
-        String insertTxnQuery = "INSERT INTO transactions (account_id, amount, transaction_type, description, related_account_id) VALUES (?, ?, ?, ?, ?)";
+        String debitQuery = "update accounts set balance = balance - ? where account_id = ? and balance >= ?";
+        String creditQuery = "update accounts set balance = balance + ? where account_id = ?";
+        String insertTxnQuery = "insert into transactions (account_id, amount, transaction_type, description, related_account_id) values (?, ?, ?, ?, ?)";
 
         try  {
             conn.setAutoCommit(false);
 
-            // 1. Debit sender's account
+            //  Debit sender's account
             try (PreparedStatement ps = conn.prepareStatement(debitQuery)) {
                 ps.setDouble(1, amount);
                 ps.setInt(2, fromAccountId);
@@ -36,7 +37,7 @@ public class TransactionDaoImpl implements ITransactionDao {
                 }
             }
 
-            // 2. Credit receiver's account
+            //  Credit receiver's account
             try (PreparedStatement ps = conn.prepareStatement(creditQuery)) {
                 ps.setDouble(1, amount);
                 ps.setInt(2, toAccountId);
@@ -48,7 +49,7 @@ public class TransactionDaoImpl implements ITransactionDao {
                 }
             }
 
-            // 3. Insert DEBIT transaction for sender
+            //  Insert DEBIT transaction for sender
             try (PreparedStatement ps = conn.prepareStatement(insertTxnQuery)) {
                 ps.setInt(1, fromAccountId);
                 ps.setDouble(2, amount);
@@ -61,7 +62,7 @@ public class TransactionDaoImpl implements ITransactionDao {
             Account account  = getAccountById(fromAccountId);
            String acc = account.getAccountNumber();
 
-            // 4. Insert CREDIT transaction for receiver
+            //  Insert CREDIT transaction for receiver
             try (PreparedStatement ps = conn.prepareStatement(insertTxnQuery)) {
                 ps.setInt(1, toAccountId);
                 ps.setDouble(2, amount);
@@ -84,7 +85,7 @@ public class TransactionDaoImpl implements ITransactionDao {
     @Override
     public List<Transaction> getPassbookHistory(int accountId) {
         List<Transaction> list = new ArrayList<>();
-        String query = "SELECT * FROM transactions WHERE account_id = ? ORDER BY transaction_date DESC";
+        String query = "select * from transactions where account_id = ? order by transaction_date desc";
 
         try (
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -109,9 +110,9 @@ public class TransactionDaoImpl implements ITransactionDao {
         return list;
     }
 
-    // ✅ NEW: Fetch account by ID (used for checking balance, etc.)
+    //used for checking balance
     public Account getAccountById(int accountId) {
-        String query = "SELECT * FROM accounts WHERE account_id = ?";
+        String query = "select * from accounts where account_id = ?";
         try (
              PreparedStatement ps = conn.prepareStatement(query)) {
 
@@ -129,11 +130,11 @@ public class TransactionDaoImpl implements ITransactionDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Not found or error
+        return null; 
     }
     
     public Account getAccountByAccountNumber(String accountNumber) {
-        String query = "SELECT * FROM accounts WHERE account_number = ?";
+        String query = "select * from accounts where account_number = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, accountNumber);
             try (ResultSet rs = ps.executeQuery()) {
@@ -153,8 +154,8 @@ public class TransactionDaoImpl implements ITransactionDao {
     }
     
     public boolean transferMoney(int fromAccountId, double amount, String description) {
-        String debitQuery = "UPDATE accounts SET balance = balance - ? WHERE account_id = ? AND balance >= ?";
-        String insertTxnQuery = "INSERT INTO transactions (account_id, amount, transaction_type, description) VALUES (?, ?, ?, ?)";
+        String debitQuery = "update accounts set balance = balance - ? where account_id = ? and balance >= ?";
+        String insertTxnQuery = "insert into transactions (account_id, amount, transaction_type, description) values (?, ?, ?, ?)";
 
         try {
             conn.setAutoCommit(false);
@@ -186,14 +187,12 @@ public class TransactionDaoImpl implements ITransactionDao {
             e.printStackTrace();
             return false;
         }
-        
-        
     }
 
     @Override
     public List<Transaction> getPassbookHistory(int accountId, String fromDate, String toDate) {
         List<Transaction> list = new ArrayList<>();
-        String query = "SELECT * FROM transactions WHERE account_id = ? AND DATE(transaction_date) BETWEEN ? AND ? ORDER BY transaction_date DESC";
+        String query = "select * from transactions where account_id = ? and date(transaction_date) between ? and ? order by transaction_date desc";
 
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, accountId);
@@ -219,14 +218,15 @@ public class TransactionDaoImpl implements ITransactionDao {
 
         return list;
     }
+	
 	@Override
 	public List<AllTransactionDto> getAllTransactions() {
 	    List<AllTransactionDto> list = new ArrayList<>();
-	    String query = "SELECT t.*, a.account_number, u.first_name, u.last_name "
-	                 + "FROM transactions t "
-	                 + "JOIN accounts a ON t.account_id = a.account_id "
-	                 + "JOIN users u ON a.user_id = u.user_id "
-	                 + "ORDER BY t.transaction_date DESC";
+	    String query = "select t.*, a.account_number, u.first_name, u.last_name "
+	                 + "from transactions t "
+	                 + "join accounts a on t.account_id = a.account_id "
+	                 + "join users u on a.user_id = u.user_id "
+	                 + "order by t.transaction_date desc";
 	    try (PreparedStatement ps = conn.prepareStatement(query);
 	         ResultSet rs = ps.executeQuery()) {
 	        while (rs.next()) {
@@ -246,6 +246,4 @@ public class TransactionDaoImpl implements ITransactionDao {
 	    }
 	    return list;
 	}
-
-
 }
